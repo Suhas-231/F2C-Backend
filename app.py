@@ -6,6 +6,37 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from jwt import encode as jwt_encode, decode as jwt_decode
 import time
 import random
+import datetime
+import os
+import threading
+from dotenv import load_dotenv
+from functools import wraps
+
+# Load environment variables
+load_dotenv()
+
+app = Flask(__name__)
+CORS(app)
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or (
+    f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
+    f"{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
+)
+# Fix for Render's postgres:// starting with postgres:// instead of postgresql://
+if app.config['SQLALCHEMY_DATABASE_URI'] and app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('JWT_SECRET', 'your-secret-key')
+
+db = SQLAlchemy(app)
+
+# Database Models
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.String(255), primary_key=True)
     role = db.Column(db.Enum('farmer', 'consumer', 'admin', name='user_role'), nullable=False)
     name = db.Column(db.String(255))
     fullName = db.Column(db.String(255))
