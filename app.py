@@ -6,18 +6,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from jwt import encode as jwt_encode, decode as jwt_decode
 import time
 import random
-import datetime
-import os
-import threading
-from dotenv import load_dotenv
-from functools import wraps
-
-# Load environment variables
-# Database Models
-class User(db.Model):
-    __tablename__ = 'users'
-    
-    id = db.Column(db.String(255), primary_key=True)
     role = db.Column(db.Enum('farmer', 'consumer', 'admin', name='user_role'), nullable=False)
     name = db.Column(db.String(255))
     fullName = db.Column(db.String(255))
